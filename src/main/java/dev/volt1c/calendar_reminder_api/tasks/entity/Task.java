@@ -15,7 +15,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "task")
+@Table(name = "tasks")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +24,7 @@ public class Task {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "descriptiom", nullable = true)
+    @Column(name = "description")
     private String description;
 
     @Temporal(TemporalType.TIMESTAMP)
