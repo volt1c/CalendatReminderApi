@@ -1,4 +1,4 @@
-package dev.volt1c.calendar_reminder_api.entity;
+package dev.volt1c.calendar_reminder_api.tasks.entity;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -17,7 +17,6 @@ import java.time.Instant;
 @AllArgsConstructor
 @Table(name = "task")
 public class Task {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -27,6 +26,13 @@ public class Task {
 
     @Column(name = "descriptiom", nullable = true)
     private String description;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "deadline", nullable = false)
+    private Instant deadline;
+
+    @Column(name = "is_done", nullable = false)
+    private boolean isDone = false;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -46,7 +52,11 @@ public class Task {
     @LastModifiedBy
     private String updatedBy;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "deadline", nullable = false)
-    private Instant deadline;
+    public Task(String name, String description, Instant deadline, String username) {
+        this.name = name;
+        this.description = description;
+        this.deadline = deadline;
+        this.createdAt = Instant.now();
+        this.createdBy = username;
+    }
 }
