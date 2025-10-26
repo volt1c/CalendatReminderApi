@@ -1,6 +1,5 @@
 package dev.volt1c.calendar_reminder_api.tasks.dto;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
