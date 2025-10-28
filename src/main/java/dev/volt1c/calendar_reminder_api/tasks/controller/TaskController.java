@@ -1,10 +1,11 @@
 package dev.volt1c.calendar_reminder_api.tasks.controller;
 
-import dev.volt1c.calendar_reminder_api.tasks.dto.CreateTask;
-import dev.volt1c.calendar_reminder_api.tasks.dto.UpdateTask;
+import dev.volt1c.calendar_reminder_api.tasks.dto.CreateTaskDto;
+import dev.volt1c.calendar_reminder_api.tasks.dto.UpdateTaskDto;
 import dev.volt1c.calendar_reminder_api.tasks.entity.Task;
 import dev.volt1c.calendar_reminder_api.tasks.repository.TaskRepository;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/tasks")
+@SecurityRequirement(name = "bearerAuth")
 public class TaskController {
 
     private final TaskRepository taskRepository;
@@ -25,11 +27,11 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody CreateTask createTask) {
+    public Task createTask(@RequestBody CreateTaskDto createTaskDto) {
         Task task = new Task(
-                createTask.getName(),
-                createTask.getDescription(),
-                createTask.getDeadline(),
+                createTaskDto.getName(),
+                createTaskDto.getDescription(),
+                createTaskDto.getDeadline(),
                 "user"); // TODO: pobierać z autentykacji
         return taskRepository.save(task);
     }
@@ -47,7 +49,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody UpdateTask updatedTask) {
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody UpdateTaskDto updatedTask) {
         return taskRepository.findById(id)
                 .map(task -> {
                     task.setName(updatedTask.getName());

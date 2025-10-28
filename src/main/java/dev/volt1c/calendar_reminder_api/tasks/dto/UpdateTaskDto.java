@@ -8,16 +8,20 @@ import org.hibernate.validator.constraints.Length;
 
 import java.time.Instant;
 
-@Builder
 @Getter
 @Setter
-public class CreateTask {
+@Builder
+public class UpdateTaskDto {
+    @NotNull
+    private long id;
+
     @NotNull
     @Length(min = 1, max = 100)
     private String name;
 
     private String description;
 
-    @NotNull
     private Instant deadline;
+
+    private boolean isDone;
 }
