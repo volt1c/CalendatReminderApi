@@ -5,8 +5,10 @@ import dev.volt1c.calendar_reminder_api.tasks.dto.UpdateTaskDto;
 import dev.volt1c.calendar_reminder_api.tasks.entity.Task;
 import dev.volt1c.calendar_reminder_api.tasks.repository.TaskRepository;
 
+import dev.volt1c.calendar_reminder_api.users.entity.User;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -27,12 +29,12 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task createTask(@RequestBody CreateTaskDto createTaskDto) {
+    public Task createTask(@AuthenticationPrincipal User user, @RequestBody CreateTaskDto createTaskDto) {
         Task task = new Task(
                 createTaskDto.getName(),
                 createTaskDto.getDescription(),
                 createTaskDto.getDeadline(),
-                "user"); // TODO: pobierać z autentykacji
+                user.getUsername());
         return taskRepository.save(task);
     }
 
@@ -49,14 +51,14 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody UpdateTaskDto updatedTask) {
+    public ResponseEntity<Task> updateTask(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody UpdateTaskDto updatedTask) {
         return taskRepository.findById(id)
                 .map(task -> {
                     task.setName(updatedTask.getName());
                     task.setDescription(updatedTask.getDescription());
                     task.setDeadline(updatedTask.getDeadline());
                     task.setUpdatedAt(Instant.now());
-                    task.setUpdatedBy("user"); // TODO: pobierać z autentykacji
+                    task.setUpdatedBy(user.getUsername());
                     taskRepository.save(task);
                     return ResponseEntity.ok(task);
                 })

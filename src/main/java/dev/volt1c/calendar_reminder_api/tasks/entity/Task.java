@@ -45,11 +45,11 @@ public class Task {
 
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @Column(name = "updated_by", nullable = false)
     @LastModifiedBy
+    @Column(name = "updated_by")
     private String updatedBy;
 
     public Task(String name, String description, Instant deadline, String username) {
