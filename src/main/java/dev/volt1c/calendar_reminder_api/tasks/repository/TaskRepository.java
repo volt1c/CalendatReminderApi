@@ -6,8 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findAllByDeadlineBetween(Instant deadlineAfter, Instant deadlineBefore);
+    List<Task> findAllByCreatedByAndDeadlineBetween(String createdBy, Instant deadlineAfter, Instant deadlineBefore);
+    List<Task> findAllByCreatedBy(String createdBy);
+    Optional<Task> findByIdAndCreatedBy(Long id, String createdBy);
 }

@@ -1,6 +1,6 @@
 package dev.volt1c.calendar_reminder_api.auth.controller;
 
-import dev.volt1c.calendar_reminder_api.auth.dto.LoginResponse;
+import dev.volt1c.calendar_reminder_api.auth.dto.LoginResponseDto;
 import dev.volt1c.calendar_reminder_api.auth.dto.LoginUserDto;
 import dev.volt1c.calendar_reminder_api.auth.dto.RegisterUserDto;
 import dev.volt1c.calendar_reminder_api.auth.services.AuthenticationService;
@@ -32,12 +32,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
+    public ResponseEntity<LoginResponseDto> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+        LoginResponseDto loginResponse = new LoginResponseDto(jwtToken, jwtService.getExpirationTime());
 
         return ResponseEntity.ok(loginResponse);
     }

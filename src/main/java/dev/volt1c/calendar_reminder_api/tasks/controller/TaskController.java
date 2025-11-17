@@ -39,35 +39,44 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<Task> getAllTasks(@AuthenticationPrincipal User user) {
+        return taskRepository.findAllByCreatedBy(user.getUsername());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        Optional<Task> task = taskRepository.findById(id);
+    public ResponseEntity<Task> getTaskById(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        Optional<Task> task = taskRepository.findByIdAndCreatedBy(id, user.getUsername());
         return task.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody UpdateTaskDto updatedTask) {
-        return taskRepository.findById(id)
-                .map(task -> {
-                    task.setName(updatedTask.getName());
-                    task.setDescription(updatedTask.getDescription());
-                    task.setDeadline(updatedTask.getDeadline());
-                    task.setUpdatedAt(Instant.now());
-                    task.setUpdatedBy(user.getUsername());
-                    taskRepository.save(task);
-                    return ResponseEntity.ok(task);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var optionalTask = taskRepository.findById(id);
+
+        if (optionalTask.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var task = optionalTask.get();
+
+        if (!task.getCreatedBy().equals(user.getUsername())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        task.setName(updatedTask.getName());
+        task.setDescription(updatedTask.getDescription());
+        task.setDeadline(updatedTask.getDeadline());
+        task.setUpdatedAt(Instant.now());
+        task.setUpdatedBy(user.getUsername());
+        taskRepository.save(task);
+        return ResponseEntity.ok(task);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        if (taskRepository.existsById(id)) {
+    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal User user, @PathVariable Long id) {
+        var task = taskRepository.findByIdAndCreatedBy(id, user.getUsername());
+
+        if (task.isPresent()) {
             taskRepository.deleteById(id);
             return ResponseEntity.noContent().build();
         } else {
@@ -76,11 +85,11 @@ public class TaskController {
     }
 
     @GetMapping("/today")
-    public List<Task> getTodayTasks() {
+    public List<Task> getTodayTasks(@AuthenticationPrincipal User user) {
         ZoneId zone = ZoneId.systemDefault();
         LocalDate today = LocalDate.now(zone);
         Instant todayStart = today.atStartOfDay(zone).toInstant();
         Instant todayEnd = today.plusDays(1).atStartOfDay(zone).toInstant();
-        return taskRepository.findAllByDeadlineBetween(todayStart, todayEnd);
+        return taskRepository.findAllByCreatedByAndDeadlineBetween(user.getUsername(), todayStart, todayEnd);
     }
 }
